@@ -408,8 +408,7 @@ cudf::size_type inplace_bitmask_and(device_span<bitmask_type> dest_mask,
                                     host_span<bitmask_type const*> masks,
                                     host_span<size_type const> begin_bits,
                                     size_type mask_size,
-                                    rmm::cuda_stream_view stream,
-                                    rmm::mr::device_memory_resource* mr)
+                                    rmm::cuda_stream_view stream)
 {
   return inplace_bitmask_binop(
     [] __device__(bitmask_type left, bitmask_type right) { return left & right; },
@@ -417,8 +416,7 @@ cudf::size_type inplace_bitmask_and(device_span<bitmask_type> dest_mask,
     masks,
     begin_bits,
     mask_size,
-    stream,
-    mr);
+    stream);
 }
 
 // Bitwise AND of the masks
@@ -445,7 +443,7 @@ std::pair<rmm::device_buffer, size_type> bitmask_and(table_view const& view,
   CUDF_FUNC_RANGE();
   rmm::device_buffer null_mask{0, stream, mr};
   if (view.num_rows() == 0 or view.num_columns() == 0) {
-    return std::make_pair(std::move(null_mask), 0);
+    return std::pair(std::move(null_mask), 0);
   }
 
   std::vector<bitmask_type const*> masks;
@@ -467,7 +465,7 @@ std::pair<rmm::device_buffer, size_type> bitmask_and(table_view const& view,
       mr);
   }
 
-  return std::make_pair(std::move(null_mask), 0);
+  return std::pair(std::move(null_mask), 0);
 }
 
 // Returns the bitwise OR of the null masks of all columns in the table view
@@ -478,7 +476,7 @@ std::pair<rmm::device_buffer, size_type> bitmask_or(table_view const& view,
   CUDF_FUNC_RANGE();
   rmm::device_buffer null_mask{0, stream, mr};
   if (view.num_rows() == 0 or view.num_columns() == 0) {
-    return std::make_pair(std::move(null_mask), 0);
+    return std::pair(std::move(null_mask), 0);
   }
 
   std::vector<bitmask_type const*> masks;
@@ -500,7 +498,7 @@ std::pair<rmm::device_buffer, size_type> bitmask_or(table_view const& view,
       mr);
   }
 
-  return std::make_pair(std::move(null_mask), 0);
+  return std::pair(std::move(null_mask), 0);
 }
 
 }  // namespace detail
